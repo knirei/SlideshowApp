@@ -10,6 +10,66 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    var counter: Int = 0
+    var isSlideshowPlayed: Bool = false
+    let imageName = ["pic1", "pic2", "pic3"]
+    var timer: Timer!
+
+    @IBOutlet weak var originalImage: UIImageView!
+    
+    @IBOutlet weak var forwardImageButton: UIButton!
+    @IBOutlet weak var backwardImageButton: UIButton!
+    @IBOutlet weak var toggleSlideshowButton: UIButton!
+    
+    @IBAction func forwardImage(_ sender: Any) {
+        counter += 1
+        originalImage.image = UIImage(named: imageName[counter%3])
+    }
+    
+    @IBAction func backwardImage(_ sender: Any) {
+        if counter == 0 {
+            counter = 3
+        }
+        counter -= 1
+        originalImage.image = UIImage(named: imageName[counter%3])
+    }
+    
+    @IBAction func toggleSlideshow(_ sender: Any) {
+        if isSlideshowPlayed == false {
+            isSlideshowPlayed = true
+            
+            // ボタン設定
+            forwardImageButton.isEnabled = false
+            backwardImageButton.isEnabled = false
+            toggleSlideshowButton.setTitle("停止", for:UIControlState.normal)
+            
+            // スライドショー再生
+            if self.timer == nil {
+                self.timer = Timer.scheduledTimer(timeInterval: 2.0, target: self, selector: #selector(autoForwardImage), userInfo: nil, repeats: true)
+            }
+
+        }
+        else {
+            isSlideshowPlayed = false
+            
+            // ボタン設定
+            forwardImageButton.isEnabled = true
+            backwardImageButton.isEnabled = true
+            toggleSlideshowButton.setTitle("再生", for:UIControlState.normal)
+
+            // スライドショー再生
+            if self.timer != nil {
+                self.timer.invalidate()
+                self.timer = nil
+            }
+        }
+    }
+    
+    @objc func autoForwardImage() {
+        counter += 1
+        originalImage.image = UIImage(named: imageName[counter%3])
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -20,6 +80,12 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
-
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let selectedViewController:SelectedViewController = segue.destination as! SelectedViewController
+        selectedViewController.imageNumber = counter%3
+    }
+    
+    @IBAction func unwind(_ segue: UIStoryboardSegue) {
+    }
 }
 
