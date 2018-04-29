@@ -34,8 +34,8 @@ class ViewController: UIViewController {
         originalImage.image = UIImage(named: imageName[counter%3])
     }
     
-    @IBAction func toggleSlideshow(_ sender: Any) {
-        if isSlideshowPlayed == false {
+    @IBAction func toggleSlideshow(_ sender: Any) { // 再生/停止ボタンが押された
+        if isSlideshowPlayed == false { // スライドショーが停止中だった場合
             isSlideshowPlayed = true
             
             // ボタン設定
@@ -43,13 +43,13 @@ class ViewController: UIViewController {
             backwardImageButton.isEnabled = false
             toggleSlideshowButton.setTitle("停止", for:UIControlState.normal)
             
-            // スライドショー再生
+            // 自動再生のためのタイマーを開始
             if self.timer == nil {
                 self.timer = Timer.scheduledTimer(timeInterval: 2.0, target: self, selector: #selector(autoForwardImage), userInfo: nil, repeats: true)
             }
 
         }
-        else {
+        else { // ライドショーが再生中だった場合
             isSlideshowPlayed = false
             
             // ボタン設定
@@ -57,7 +57,7 @@ class ViewController: UIViewController {
             backwardImageButton.isEnabled = true
             toggleSlideshowButton.setTitle("再生", for:UIControlState.normal)
 
-            // スライドショー再生
+            // 自動再生のためのタイマーを停止
             if self.timer != nil {
                 self.timer.invalidate()
                 self.timer = nil
@@ -81,11 +81,19 @@ class ViewController: UIViewController {
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if isSlideshowPlayed == true { // スライドショーが再生中だった場合
+            self.timer.invalidate()
+            self.timer = nil
+        }
+  
         let selectedViewController:SelectedViewController = segue.destination as! SelectedViewController
         selectedViewController.imageNumber = counter%3
     }
     
     @IBAction func unwind(_ segue: UIStoryboardSegue) {
+        if isSlideshowPlayed == true { // スライドショーが再生中だった場合
+            self.timer = Timer.scheduledTimer(timeInterval: 2.0, target: self, selector: #selector(autoForwardImage), userInfo: nil, repeats: true)
+        }
     }
 }
 
